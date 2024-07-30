@@ -1,4 +1,4 @@
-package react.blog.repository.member;
+package react.blog.member.repository;
 
 import org.springframework.stereotype.Repository;
 

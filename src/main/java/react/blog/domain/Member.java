@@ -2,14 +2,11 @@ package react.blog.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import react.blog.utils.BaseTimeEntity;
 
 @Entity
-@Getter @Setter
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseTimeEntity {
 
@@ -19,6 +16,8 @@ public class Member extends BaseTimeEntity {
 
     @Column(unique = true)
     private String email;
+
+    private String password;
 
     @Column(unique = true)
     private String nickname;
@@ -31,4 +30,12 @@ public class Member extends BaseTimeEntity {
 
     private String profileImage;
 
+    @Builder
+    public Member(String email, String password, String nickname, String phoneNumber, Address address) {
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+    }
 }

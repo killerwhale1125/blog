@@ -1,4 +1,4 @@
-package react.blog.filter;
+package react.blog.utils.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,7 +13,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import react.blog.provider.JwtProvider;
 
 import java.io.IOException;
 
@@ -23,7 +22,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -32,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String token = parseBearerToken(request);
 
-            if(token == null) {
+            if(!StringUtils.hasText(token)) {
                 // 토큰 없을 시 다음 필터로 넘김
                 filterChain.doFilter(request, response);
                 return;
@@ -40,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String email = jwtProvider.validate(token);
 
-            if(email == null) {
+            if(!StringUtils.hasText(email)) {
                 // 이메일 없을 시 다음 필터로 넘김
                 filterChain.doFilter(request, response);
                 return;
@@ -53,6 +51,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 웹인증 세부정부 소스 -> Client IP, Session ID 를 WebAuthenticationDetails 에 생성하여 세부정보를 인증객체에 저장
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
+            /**
+             * JWT 토큰 자체에 인증 정보가 포함되어있기 때문에 AuthenticationManager에게 UsernamePasswordAuthenticationToken을 넘기지 않는다
+             * 따라서 생략이 가능하다
+             */
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         } catch(Exception exception) {

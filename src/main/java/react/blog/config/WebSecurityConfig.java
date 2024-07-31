@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -48,8 +47,6 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests.requestMatchers("/**").permitAll()
                                 .anyRequest().authenticated())
-//            .exceptionHandling((exceptionConfig) ->
-//                    exceptionConfig.authenticationEntryPoint(new FailedAuthenticationEntryPoint())) // Security 인증 실패 시
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -61,15 +58,3 @@ public class WebSecurityConfig {
     }
 }
 
-
-/**
- * 인증 실패용 내부 중첩클래스 선언
- */
-//class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
-//    @Override
-//    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-//        response.setContentType("application/json");
-//        response.setStatus(HttpServletResponse.SC_FORBIDDEN);   // 403 권한없음
-//        response.getWriter().write("{ \"code\": \"NP\", \"message\": \"Authorization Failed\" }");
-//    }
-//}

@@ -1,17 +1,27 @@
 package react.blog.utils.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import react.blog.common.BaseException;
 
+import java.security.SignatureException;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static react.blog.common.BaseResponseStatus.*;
 
 @Slf4j
 @Component
@@ -95,16 +105,127 @@ public class JwtProvider {
     /**
      * 검증
      */
-    public String validate(String jwt) {
+    public String validate(String token) {
         Claims claims = null;
 
         try {
-            claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwt).getBody();
-        } catch(Exception exception) {
-            exception.printStackTrace();
-            return null;
+            claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token).getBody();
+        } catch (SecurityException | MalformedJwtException e) {
+            log.debug("Invalid JWT Token", e);
+            log.info("유효하지 않은 JWT 토큰입니다", JwtProvider.class);
+            throw new BaseException(INVALID_TOKEN);
+        } catch (ExpiredJwtException e) {
+            log.debug("Expired JWT Token", e);
+            log.info("JWT 토큰의 기간이 만료되었습니다.", JwtProvider.class);
+            throw new BaseException(EXPIRED_TOKEN);
+        } catch (UnsupportedJwtException e) {
+            log.debug("Unsupported JWT Token", e);
+            log.info("지원되지 않는 JWT 토큰입니다.", JwtProvider.class);
+            throw new BaseException(UNSUPPORTED_TOKEN);
+        } catch (IllegalArgumentException e) {
+            log.debug("JWT claims string is empty.", e);
+            log.info("JWT 토큰이 비어있습니다.", JwtProvider.class);
+            throw new BaseException(TOKEN_ISEMPTY);
+        } catch (Exception e) {
+            if (e instanceof SignatureException) {
+                log.error("JWT signature does not match locally computed signature.", e);
+                log.info("JWT 서명이 일치하지 않습니다. JWT의 유효성을 확인할 수 없습니다.", JwtProvider.class);
+                throw new BaseException(INVALID_TOKEN);
+            } else {
+                log.error("Unexpected JWT parsing error", e);
+                throw new BaseException(INVALID_TOKEN);
+            }
         }
 
         return claims.getSubject();
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+
+        // null or 공백 or 길이 0 일 경우 false
+        if(!StringUtils.hasText(authorization))
+            return null;
+
+        if(!authorization.startsWith("Bearer "))
+            return null;
+
+        // 토큰 반환
+        return authorization.substring(7);
+    }
+
+    /**
+     * 1. refresh 토큰 검증
+     * 2. Redis 토큰과 동등성 비교
+     * 3. 토큰에 담긴 정보로 유저 조회 후 새 토큰 발급
+     */
+    public JwtToken refreshTokens(String refreshToken) {
+        /**
+         * Refresh 토큰 검증
+         * 토큰 값이 존재하는데 검증 실패 시 재 로그인 필요
+         */
+        validate(refreshToken);
+
+        Claims claims = parseClaims(refreshToken);
+        String username = claims.getSubject();
+
+        /**
+         * Redis에 저장된 Refresh 토큰 조회
+         * Refresh 만료 시 Redis에 자동 삭제되기 때문에 서버 측 검증 X
+         * null -> 만료
+         */
+        String redisRefreshToken = redisTemplate.opsForValue().get(username);
+
+        /**
+         * Refresh 토큰 null 체크 & 동등성 여부 판단
+         */
+        if(!StringUtils.hasText(redisRefreshToken) || !refreshToken.equals(redisRefreshToken)) {
+            throw new BaseException(TOKEN_MISMATCHED);
+        }
+
+        /**
+         * 토큰에 담긴 유저 정보로 Authentication 객체 조회
+         * 보안을 고려하여 Refresh 토큰도 만료되지 않았더라도 재발급
+         */
+        Authentication authentication = getAuthenticationFromClaims(claims);
+        String newAccessToken = createAccessToken(authentication);
+        String newRefreshToken = createRefreshToken(authentication);
+
+        return JwtToken.builder()
+                .grantType("Bearer")
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .build();
+    }
+
+    /**
+     * JWT 토큰 복호화
+     */
+    private Claims parseClaims(String accessToken) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(accessToken)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
+    }
+
+    /**
+     * Token 정보로 Authentication 객체 생성
+     */
+    private Authentication getAuthenticationFromClaims(Claims claims) {
+        String username = claims.getSubject();
+
+        // 사용자 인증만을 위해 authorities를 빈 리스트로 설정
+        List<GrantedAuthority> authorities = Collections.emptyList();
+
+        UserDetails principal = new User(username, "", authorities);
+        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 }

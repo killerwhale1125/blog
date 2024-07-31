@@ -5,16 +5,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import static react.blog.common.BaseResponseStatus.*;
+import static react.blog.common.BaseResponseStatus.SUCCESS;
 
 @Getter
 @AllArgsConstructor
 @JsonPropertyOrder({"code", "message", "result"})
 public class BaseResponse<T> {
-    private final String message;       //
-    private final String code;             // 오류별로 코드 나타냄
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private T result;                   //
+    private final String message;
+    private final String code;
+    private T result;
 
     public BaseResponse() {
         this.message = SUCCESS.getMessage();

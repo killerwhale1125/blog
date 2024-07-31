@@ -38,4 +38,12 @@ public class Member extends BaseTimeEntity {
         this.phoneNumber = phoneNumber;
         this.address = address;
     }
+
+    /**
+     * 닉네임 변경
+     * @param newNickname
+     */
+    public void changeNickname(String newNickname) {
+        this.nickname = newNickname;
+    }
 }

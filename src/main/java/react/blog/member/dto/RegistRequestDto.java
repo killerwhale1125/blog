@@ -12,7 +12,7 @@ import react.blog.domain.Member;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-public class RegistDto {
+public class RegistRequestDto {
     @NotEmpty
     @Email(message = "유효하지 않은 이메일 형식입니다.",
             regexp = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$")
@@ -34,7 +34,7 @@ public class RegistDto {
 
     private String addressDetail;
 
-    public static Member toEntity(RegistDto memberDto, PasswordEncoder passwordEncoder) {
+    public static Member toEntity(RegistRequestDto memberDto, PasswordEncoder passwordEncoder) {
         return Member.builder()
                 .email(memberDto.getEmail())
                 .password(passwordEncoder.encode(memberDto.getPassword()))

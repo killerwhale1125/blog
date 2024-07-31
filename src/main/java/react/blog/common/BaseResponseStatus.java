@@ -14,7 +14,13 @@ public enum BaseResponseStatus {
     SIGN_IN_FAIL("SF", "Login information mismatch"),
     AUTHORIZATION_FAIL("AF", "Authorization Failed"),
     NO_PERMISSION("NP", "Do not have permission"),
-    DATABASE_ERROR("DBE", "Database error");
+    DATABASE_ERROR("DBE", "Database error"),
+    TOKEN_MISMATCHED("RM", "RefreshToken mismatched"),
+    INVALID_TOKEN("IT", "Invalid JWT Token"),
+    EXPIRED_TOKEN("ET", "Expired JWT Token"),
+    UNSUPPORTED_TOKEN("UT", "Unsupported JWT Token"),
+    TOKEN_ISEMPTY("TE", "JWT claims string is empty"),
+    TOKEN_PARSE_ERROR("TP", "Unexpected JWT parsing error");
 
     private final String code;
     private final String message;

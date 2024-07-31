@@ -7,15 +7,14 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import react.blog.common.BaseResponse;
+import react.blog.common.BaseException;
 import react.blog.domain.Member;
-import react.blog.member.dto.RegistDto;
+import react.blog.member.dto.MemberProfileRequestDto;
+import react.blog.member.repository.MemberRepository;
 import react.blog.utils.jwt.JwtProvider;
 import react.blog.utils.jwt.JwtToken;
-import react.blog.member.repository.MemberRepository;
 
-import static react.blog.common.BaseResponseStatus.DUPLICATE_EMAIL;
-import static react.blog.common.BaseResponseStatus.DUPLICATE_NICKNAME;
+import static react.blog.common.BaseResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -52,15 +51,28 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public boolean isDuplicatedEmail(String email) {
-        return memberRepository.existsByEmail(email);
+    public void isDuplicatedEmail(String email) {
+        if(memberRepository.existsByEmail(email)) throw new BaseException(DUPLICATE_EMAIL);
+
     }
 
-    public boolean isDuplicatedNickname(String nickname) {
-        return memberRepository.existsByNickname(nickname);
+    public void isDuplicatedNickname(String nickname) {
+        if(memberRepository.existsByNickname(nickname)) throw new BaseException(DUPLICATE_NICKNAME);
     }
 
-    public boolean isDuplicatedPhoneNumber(String phoneNumber) {
-        return memberRepository.existsByPhoneNumber(phoneNumber);
+    public void isDuplicatedPhoneNumber(String phoneNumber) {
+        if(memberRepository.existsByPhoneNumber(phoneNumber)) throw new BaseException(DUPLICATE_TEL_NUMBER);
+    }
+
+    public MemberProfileRequestDto findMemberByEmail(String email) {
+        return MemberProfileRequestDto.toEntity(memberRepository.findMemberByEmail(email).orElseThrow(() -> new BaseException(NOT_EXISTED_USER)));
+    }
+
+    @Transactional
+    public void updateNickname(String email, String newNickname) {
+        isDuplicatedNickname(newNickname);
+
+        Member member = memberRepository.findMemberByEmail(email).orElseThrow(() -> new BaseException(NOT_EXISTED_USER));
+        member.changeNickname(newNickname);
     }
 }

@@ -25,5 +25,5 @@ public class SearchLog extends BaseTimeEntity {
     private String relationWord;
 
     @NotNull
-    private boolean relartion;
+    private boolean relation;
 }

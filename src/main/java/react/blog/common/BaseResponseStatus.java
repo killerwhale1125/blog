@@ -20,7 +20,9 @@ public enum BaseResponseStatus {
     EXPIRED_TOKEN("ET", "Expired JWT Token"),
     UNSUPPORTED_TOKEN("UT", "Unsupported JWT Token"),
     TOKEN_ISEMPTY("TE", "JWT claims string is empty"),
-    TOKEN_PARSE_ERROR("TP", "Unexpected JWT parsing error");
+    TOKEN_PARSE_ERROR("TP", "Unexpected JWT parsing error"),
+    UNKNOWN_ERROR("UE", "Unknown error"),
+    UNSUPPORT_FILETYPE("UF", "Unsupported File Type!");
 
     private final String code;
     private final String message;

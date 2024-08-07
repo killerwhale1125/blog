@@ -13,7 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import react.blog.utils.jwt.JwtAuthenticationFilter;
+import react.blog.filter.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity  // 시큐리티 보안 기능 활성화
@@ -48,7 +48,6 @@ public class WebSecurityConfig {
                         authorizeRequests.requestMatchers("/**").permitAll()
                                 .anyRequest().authenticated())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 

@@ -105,42 +105,11 @@ public class JwtProvider {
     /**
      * 검증
      */
-    public String validate(String token) {
-        Claims claims = null;
-
-        try {
-            claims = Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(token).getBody();
-        } catch (SecurityException | MalformedJwtException e) {
-            log.debug("Invalid JWT Token", e);
-            log.info("유효하지 않은 JWT 토큰입니다", JwtProvider.class);
-            throw new BaseException(INVALID_TOKEN);
-        } catch (ExpiredJwtException e) {
-            log.debug("Expired JWT Token", e);
-            log.info("JWT 토큰의 기간이 만료되었습니다.", JwtProvider.class);
-            throw new BaseException(EXPIRED_TOKEN);
-        } catch (UnsupportedJwtException e) {
-            log.debug("Unsupported JWT Token", e);
-            log.info("지원되지 않는 JWT 토큰입니다.", JwtProvider.class);
-            throw new BaseException(UNSUPPORTED_TOKEN);
-        } catch (IllegalArgumentException e) {
-            log.debug("JWT claims string is empty.", e);
-            log.info("JWT 토큰이 비어있습니다.", JwtProvider.class);
-            throw new BaseException(TOKEN_ISEMPTY);
-        } catch (Exception e) {
-            if (e instanceof SignatureException) {
-                log.error("JWT signature does not match locally computed signature.", e);
-                log.info("JWT 서명이 일치하지 않습니다. JWT의 유효성을 확인할 수 없습니다.", JwtProvider.class);
-                throw new BaseException(INVALID_TOKEN);
-            } else {
-                log.error("Unexpected JWT parsing error", e);
-                throw new BaseException(INVALID_TOKEN);
-            }
-        }
-
-        return claims.getSubject();
+    public String validate(String token){
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token).getBody().getSubject();
     }
 
     public String resolveToken(HttpServletRequest request) {

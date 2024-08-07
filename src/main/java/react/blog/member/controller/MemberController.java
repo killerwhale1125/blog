@@ -30,4 +30,7 @@ public class MemberController {
         memberService.updateNickname(authentication.getName(), nicknameRequestDto.getNickname());
         return new BaseResponse<>();
     }
+
+//    @PatchMapping("/profileImage")
+
 }

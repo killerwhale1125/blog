@@ -1,10 +1,15 @@
-package react.blog.utils.jwt;
+package react.blog.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -13,9 +18,18 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import react.blog.common.BaseResponse;
+import react.blog.common.BaseResponseStatus;
+import react.blog.utils.jwt.JwtProvider;
 
 import java.io.IOException;
+import java.security.SignatureException;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static react.blog.common.BaseResponseStatus.*;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -57,11 +71,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
              */
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-        } catch(Exception exception) {
-            exception.printStackTrace();
+        } catch (Exception e) {
+            handleJwtException(e, response);
+            return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    public void setResponse(HttpServletResponse response, BaseResponseStatus baseResponseStatus) throws IOException {
+        response.setStatus(SC_BAD_REQUEST);
+        response.setContentType(APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("utf-8");
+        BaseResponse<Void> baseResponse = new BaseResponse<>(baseResponseStatus);
+        new ObjectMapper().writeValue(response.getWriter(), baseResponse);
+    }
+
+    private void handleJwtException(Exception e, HttpServletResponse response) throws IOException {
+        BaseResponseStatus status;
+
+        if (e instanceof SecurityException || e instanceof MalformedJwtException) {
+            status = INVALID_TOKEN;
+        } else if (e instanceof ExpiredJwtException) {
+            status = EXPIRED_TOKEN;
+        } else if (e instanceof UnsupportedJwtException) {
+            status = UNSUPPORTED_TOKEN;
+        } else if (e instanceof IllegalArgumentException) {
+            status = TOKEN_ISEMPTY;
+        } else if (e instanceof SignatureException) {
+            status = INVALID_TOKEN;
+        } else {
+            status = INVALID_TOKEN;
+        }
+
+        logException(e, status);
+        setResponse(response, status);
+    }
+
+    private void logException(Exception e, BaseResponseStatus status) {
+        log.debug("JWT Exception: {}", status, e);
+        log.error("JWT Exception: {}", status, e);
     }
 
     private String parseBearerToken(HttpServletRequest request) {

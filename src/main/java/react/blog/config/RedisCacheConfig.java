@@ -22,9 +22,6 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import java.util.HashMap;
 import java.util.Map;
 
-import static react.blog.config.CacheExpireConfig.*;
-import static react.blog.config.CacheKeyConfig.*;
-
 @Configuration
 @EnableCaching
 public class RedisCacheConfig {
@@ -91,15 +88,11 @@ public class RedisCacheConfig {
                         .fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)));
 
         Map<String, RedisCacheConfiguration> configurations = new HashMap<>();
-        // POST란 이름의 캐시를 만료기간을 포함하여 설정
-        configurations.put(POST, redisCacheConfiguration.entryTtl(POST_CACHE_EXPIRE_TIME));
-        // CATEGORY란 이름의 캐시를 만료기간을 포함하여 설정
-        configurations.put(CATEGORY, redisCacheConfiguration.entryTtl(CATEGORY_CACHE_EXPIRE_TIME));
+//        // POST란 이름의 캐시를 만료기간을 포함하여 설정
+//        configurations.put(POST, redisCacheConfiguration.entryTtl(POST_CACHE_EXPIRE_TIME));
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .withInitialCacheConfigurations(configurations) // -> 초기 캐시 구성을 설정. 여기서는 POST와 CATEGORY 캐시의 만료 시간을 설정
                 .build();
     }
-
-
 }

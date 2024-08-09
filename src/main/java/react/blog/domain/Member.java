@@ -39,6 +39,12 @@ public class Member extends BaseTimeEntity {
         this.address = address;
     }
 
+    @Builder
+    public Member(String email, String nickname) {
+        this.email = email;
+        this.nickname = nickname;
+    }
+
     /**
      * 닉네임 변경
      * @param newNickname

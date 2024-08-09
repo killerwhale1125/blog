@@ -24,4 +24,8 @@ public class BoardSearchService {
     public List<BoardListResponseDto> findTop3WeeklyPosts(LocalDateTime startOfWeek, LocalDateTime endOfWeek) {
         return boardQueryRepository.findAllByCreatedDateBetween(startOfWeek, endOfWeek);
     }
+
+    public List<BoardListResponseDto> findSearchBoardList(String searchWord, Pageable pageable) {
+        return boardQueryRepository.findSearchBoardList(searchWord, pageable);
+    }
 }

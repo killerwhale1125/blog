@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import react.blog.board.dto.response.BoardListResponseDto;
 import react.blog.board.dto.response.QBoardListResponseDto;
-import react.blog.domain.Board;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -63,6 +62,26 @@ public class BoardQueryRepository {
                 .where(board.createdDate.between(startOfWeek, endOfWeek))
                 .orderBy(board.favoriteCount.desc())
                 .limit(5)
+                .fetch();
+    }
+
+    public List<BoardListResponseDto> findSearchBoardList(String searchWord, Pageable pageable) {
+        return queryFactory.select(
+                new QBoardListResponseDto(
+                        board.id,
+                        board.title,
+                        board.content,
+                        board.favoriteCount,
+                        board.commentCount,
+                        board.viewCount,
+                        board.createdDate,
+                        member.nickname))
+                .from(board)
+                .leftJoin(board.member, member)
+                .where(board.title.likeIgnoreCase("%"+searchWord+"%"))
+                .orderBy(board.createdDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
     }
 }

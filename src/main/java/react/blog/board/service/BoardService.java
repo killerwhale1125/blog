@@ -11,6 +11,7 @@ import react.blog.board.repository.BoardQueryRepository;
 import react.blog.board.repository.BoardRepository;
 import react.blog.common.BaseException;
 import react.blog.domain.Board;
+import react.blog.domain.Favorite;
 import react.blog.domain.Member;
 import react.blog.member.repository.MemberRepository;
 
@@ -59,4 +60,5 @@ public class BoardService {
     public void checkAuth(Member member, Board board) {
         if(board.getMember().getId() != member.getId()) throw new BaseException(AUTHORIZATION_FAIL);
     }
+
 }

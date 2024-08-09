@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import react.blog.board.dto.response.BoardListResponseDto;
@@ -35,5 +36,10 @@ public class BoardSearchController {
     public BaseResponse<List<BoardListResponseDto>> getTop3WeeklyPosts() {
         List<BoardListResponseDto> top3WeeklyPosts = boardSearchService.findTop3WeeklyPosts(startOfWeek(now()), endOfWeek(now()));
         return new BaseResponse<>(top3WeeklyPosts);
+    }
+
+    @GetMapping("/search-list/{searchWord}")
+    public BaseResponse<List<BoardListResponseDto>> getSearchBoardList(@PathVariable String searchWord, Pageable pageable) {
+        return new BaseResponse<>(boardSearchService.findSearchBoardList(searchWord, pageable));
     }
 }

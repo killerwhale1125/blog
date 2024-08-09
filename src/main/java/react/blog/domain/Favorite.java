@@ -1,14 +1,11 @@
 package react.blog.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import react.blog.utils.BaseTimeEntity;
 
 @Entity
-@Getter @Setter
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Favorite extends BaseTimeEntity {
     @Id @GeneratedValue
@@ -22,4 +19,10 @@ public class Favorite extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     private Board board;
+
+    @Builder
+    public Favorite (Member member, Board board) {
+        this.member = member;
+        this.board = board;
+    }
 }

@@ -22,6 +22,7 @@ public enum BaseResponseStatus {
     TOKEN_ISEMPTY("TE", "JWT claims string is empty"),
     TOKEN_PARSE_ERROR("TP", "Unexpected JWT parsing error"),
     UNKNOWN_ERROR("UE", "Unknown error"),
+    ALREADY_LIKED("AL", "Already liked"),
     UNSUPPORT_FILETYPE("UF", "Unsupported File Type!");
 
     private final String code;

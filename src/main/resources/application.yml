@@ -6,13 +6,52 @@ spring:
     driver-class-name: org.h2.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         # show_sql: true
         format_sql: true
         use_sql_comments: true  # 쿼리 확인용
         default_batch_fetch_size: 10
+  redis:
+    session:
+      host: 192.168.45.106
+      port: 6379
+    cache:
+      host: 192.168.45.106
+      port: 6380
+  data:
+    elasticsearch:
+      username: elastic
+      password: 5_UtOL=ium-Td4cSg=_*  # 환경 변수에서 비밀번호를 가져옵니다.
+      repositories:
+        enabled: true
+      uris: 172.17.119.41:9200
+
 logging.level:
   org.hibernate.SQL: debug
 # org.hibernate.type: trace
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh
+
+security:
+  bcrypt:
+    strength: 12
+  jwt:
+    secret-key: bXlTZWNyZXRLZbXlTZWNyZXRLZbXlTZWNyZXRLZbXlTZWNyZXRLZ
+    token:
+      access-expiration-time: 1800000 # 30분 (밀리초 단위)
+      refresh-expiration-time: 1209600000 # 14일 (밀리초 단위)
+
+aws:
+  s3:
+    accessKey: udMUbjEZ
+    secretKey: E1CbfIpkx
+    bucket: danggn
+    #    region: us-east-1  # Minio는 region을 사용하지 않지만, 여기에는 필요한 리전을 입력할 수 있습니다.
+    uploadPath: /danggn-storage  # 업로드 경로 설정
+    endPoint: http://192.168.45.106:9000  # Minio 서버의 엔드포인트 설정

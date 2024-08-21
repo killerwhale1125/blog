@@ -21,8 +21,8 @@ import java.time.LocalDateTime;
 public class BoardDocument {
 
     @Id
-    private String id;
-
+    private Long id;
+    // 자체 소문자 적용
     @Field(type = FieldType.Text, analyzer = "standard")
     private String title;
 
@@ -31,6 +31,9 @@ public class BoardDocument {
 
     @Field(type = FieldType.Text, analyzer = "standard")
     private String writeNickname;
+
+    @Field(type = FieldType.Text, analyzer = "standard")
+    private String email;
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
     private LocalDateTime writeDateTime;
@@ -46,7 +49,7 @@ public class BoardDocument {
 
     public static BoardDocument of(Board board) {
         return BoardDocument.builder()
-                .id(board.getId().toString())
+                .id(board.getId())
                 .title(board.getTitle())
                 .content(board.getContent())
                 .writeNickname(board.getMember().getNickname())
@@ -54,6 +57,7 @@ public class BoardDocument {
                 .viewCount(board.getViewCount())
                 .commentCount(board.getCommentCount())
                 .favoriteCount(board.getFavoriteCount())
+                .email(board.getMember().getEmail())
                 .build();
     }
 }

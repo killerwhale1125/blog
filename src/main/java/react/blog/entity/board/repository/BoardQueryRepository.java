@@ -36,7 +36,8 @@ public class BoardQueryRepository {
                         board.commentCount,
                         board.viewCount,
                         board.createdDate,
-                        member.nickname))
+                        member.nickname,
+                        member.email))
                 .from(board)
                 .join(board.member, member)
                 .offset(pageable.getOffset())
@@ -56,32 +57,13 @@ public class BoardQueryRepository {
                     board.commentCount,
                     board.viewCount,
                     board.createdDate,
-                    member.nickname))
+                    member.nickname,
+                    member.email))
                 .from(board)
                 .join(board.member, member)
                 .where(board.createdDate.between(startOfWeek, endOfWeek))
                 .orderBy(board.favoriteCount.desc())
                 .limit(3)
-                .fetch();
-    }
-
-    public List<BoardListResponseDto> findSearchBoardList(String searchWord, Pageable pageable) {
-        return queryFactory.select(
-                new QBoardListResponseDto(
-                        board.id,
-                        board.title,
-                        board.content,
-                        board.favoriteCount,
-                        board.commentCount,
-                        board.viewCount,
-                        board.createdDate,
-                        member.nickname))
-                .from(board)
-                .leftJoin(board.member, member)
-                .where(board.title.likeIgnoreCase("%"+searchWord+"%"))
-                .orderBy(board.createdDate.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .fetch();
     }
 
@@ -94,7 +76,8 @@ public class BoardQueryRepository {
                 board.commentCount,
                 board.viewCount,
                 board.createdDate,
-                member.nickname))
+                member.nickname,
+                member.email))
                 .from(board)
                 .leftJoin(board.member, member)
                 .where(member.email.eq(email))

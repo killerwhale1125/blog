@@ -29,7 +29,7 @@ public class BoardController {
     }
 
     @DeleteMapping("/{boardId}")
-    public BaseResponse<Void> updateBoard(Authentication authentication, @PathVariable Long boardId) {
+    public BaseResponse<Void> removeBoard(Authentication authentication, @PathVariable Long boardId) {
         boardService.removeBoard(authentication.getName(), boardId);
         return new BaseResponse<>();
     }

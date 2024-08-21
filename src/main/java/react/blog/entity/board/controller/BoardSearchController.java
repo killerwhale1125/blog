@@ -23,13 +23,19 @@ public class BoardSearchController {
 
     private final BoardSearchService boardSearchService;
 
+    /**
+     * 최근 게시물 리스트
+     * @param pageable
+     * @return
+     */
     @GetMapping("/current-list")
     public BaseResponse<List<BoardListResponseDto>> getLatestPosts(Pageable pageable) {
         return new BaseResponse<>(boardSearchService.findLatestBoard(pageable));
     }
 
     /**
-     * 캐싱 적용 대상
+     * 캐싱 적용
+     * @return
      */
     @GetMapping("/top-3")
     public BaseResponse<List<BoardListResponseDto>> getTop3WeeklyPosts() {
@@ -37,24 +43,28 @@ public class BoardSearchController {
         return new BaseResponse<>(top3WeeklyPosts);
     }
 
+    /**
+     * indexing 적용
+     * @param searchWord
+     * @param pageable
+     * @return
+     */
     @GetMapping("/search-list/{searchWord}")
     public BaseResponse<List<BoardListResponseDto>> getSearchBoardList(@PathVariable String searchWord, Pageable pageable) {
         return new BaseResponse<>(boardSearchService.findSearchBoardList(searchWord, pageable));
     }
 
+    /**
+     * Indexing 적용
+     * 단순 Email 조회라서 RDBMS에서 조회 방식은 데이터가 많지 않을 경우 적합
+     * 데이터가 많을 경우 Elasticsearch가 효율적
+     * @param email
+     * @param pageable
+     * @return
+     */
     @GetMapping("/user-board/{email}")
     public BaseResponse<List<BoardListResponseDto>> getUserBoard(@PathVariable String email, Pageable pageable) {
         return new BaseResponse<>(boardSearchService.findBoardListByEmail(email, pageable));
     }
 
-    @GetMapping("/popular-list")
-    public BaseResponse<List<String>> popularWordList() {
-        return null;
-    }
-
-//    @GetMapping("/${query}/relation-list")
-//    public BaseResponse<List<String>> getRelatedSearches(@PathVariable String query) {
-//        boardSearchService.getRelatedSearches(query);
-//        return null;
-//    }
 }

@@ -2,6 +2,7 @@ package react.blog.entity.board.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import react.blog.document.BoardDocument;
 import react.blog.entity.board.dto.response.BoardListResponseDto;
 import react.blog.entity.board.repository.BoardElasticSearchRepository;
 import react.blog.entity.board.repository.BoardQueryRepository;
+import react.blog.entity.searchlog.service.SearchLogService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +22,7 @@ public class BoardSearchService {
 
     private final BoardQueryRepository boardQueryRepository;
     private final BoardElasticSearchRepository boardElasticSearchRepository;
+    private final SearchLogService searchLogService;
 
     /**
      * 최근 게시물 조회
@@ -42,32 +45,26 @@ public class BoardSearchService {
     }
 
     /**
+     * 검색어 저장 및 count 증가
      * 검색어로 Elasticsearch 인덱스 조회
      * @param searchWord
      * @param pageable
      * @return
+     * 현재 local에는 1개의 클러스터와 1개의 노드로 구성되어있음
+     * 따라서 검색 시 1개의 노드로 모든 데이터 검색을 처리하는 중
      */
     public List<BoardListResponseDto> findSearchBoardList(String searchWord, Pageable pageable) {
-        SearchHits<BoardDocument> searchHits = boardElasticSearchRepository.findByTitle(searchWord);
+        Page<BoardDocument> searchHits = boardElasticSearchRepository.findByTitle(searchWord, pageable);
         return searchHits.stream()
-                .map(hit -> BoardListResponseDto.of(hit.getContent()))
+                .map(BoardListResponseDto::of)
                 .collect(Collectors.toList());
     }
 
     public List<BoardListResponseDto> findBoardListByEmail(String email, Pageable pageable) {
-        return boardQueryRepository.findBoardListByEmail(email, pageable);
+        return boardElasticSearchRepository.findByEmail(email, pageable)
+                .stream()
+                .map(BoardListResponseDto::of)
+                .collect(Collectors.toList());
     }
 
-//    public List<WordsDocument> getRelatedSearches(String query) {
-//        List<WordsDocument> searches = searchWordsRepository.findByQuery(query);
-//        // 검색 결과가 없으면 빈 리스트 반환
-//        if (searches.isEmpty()) {
-//            return List.of();
-//        }
-//        // 첫 번째 검색 결과에서 관련 검색어 리스트 추출
-////        return searches.stream()
-////                .flatMap(result -> result.getSuggestions().stream())
-////                .collect(Collectors.toList());
-//        return null;
-//    }
 }

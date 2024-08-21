@@ -50,7 +50,6 @@ public class BoardService {
         checkAuth(member, board);
 
         board.updateBoard(boardRequestDto.getTitle(), boardRequestDto.getContent());
-        boardRepository.save(board);
         boardElasticSearchRepository.save(BoardDocument.of(board));
     }
 
@@ -62,7 +61,7 @@ public class BoardService {
         checkAuth(member, board);
 
         boardRepository.delete(board);
-        boardElasticSearchRepository.deleteById(board.getId().toString());
+        boardElasticSearchRepository.deleteById(board.getId());
     }
 
     public Board findBoardById(Long boardId) {

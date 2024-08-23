@@ -20,28 +20,16 @@ public class SearchLogService {
 
     // 검색어 저장 또는 업데이트 및 제안 검색어 추가
     public void saveOrUpdateSearchWord(String searchWord, List<String> newSuggestions) {
-        // 1. 검색어에 해당하는 문서 찾기 (없으면 새로 생성)
-        SearchWordDocument targetDoc = searchLogRepository.findById(searchWord).orElseGet(() -> {
-            SearchWordDocument newDoc = SearchWordDocument.of(searchWord);
-            searchLogRepository.save(newDoc);
-            return newDoc;
-        });
-
-        // 2. 카운트 업데이트
-        targetDoc.updateCount();
-
-        // 3. 제안 검색어 업데이트
-        if (!newSuggestions.isEmpty()) {
-            List<String> existingSuggestions = targetDoc.getSuggestions();
-            existingSuggestions.addAll(newSuggestions);
-            targetDoc.registSuggestions(existingSuggestions.stream()
-                    .distinct() // 중복 제거
-                    .sorted(String::compareToIgnoreCase) // 정렬
-                    .collect(Collectors.toList()));
-        }
-
-        // 4. 문서 저장
-        searchLogRepository.save(targetDoc);
+        searchLogRepository.findById(searchWord).ifPresentOrElse(
+                doc -> {
+                    doc.updateCount();
+                    searchLogRepository.save(doc);
+                },
+                () -> {
+                    SearchWordDocument newDoc = SearchWordDocument.of(searchWord);
+                    searchLogRepository.save(newDoc);
+                }
+        );
     }
 
     // 상위 10개의 검색어 조회 (캐시 사용)
@@ -55,19 +43,21 @@ public class SearchLogService {
 
     // 검색어에 해당하는 제안 검색어 조회 및 관련 검색어 추가
     public List<String> getSuggestions(String searchWord) {
-        // 1. 최대 10개의 유사한 검색어 조회
         Pageable pageable = PageRequest.of(0, 10);
-        List<SearchWordDocument> relatedWordsDocs = searchLogRepository.findBySearchWordContaining(searchWord, pageable);
-        List<String> relatedWords = relatedWordsDocs.stream()
+        List<String> relatedWords = searchLogRepository.findBySearchWordContaining(searchWord, pageable).stream()
                 .map(SearchWordDocument::getSearchWord)
+                .distinct()
+                .sorted(String::compareToIgnoreCase)
                 .collect(Collectors.toList());
 
-        // 2. 현재 검색어 문서에 제안 검색어 추가 및 업데이트
-        saveOrUpdateSearchWord(searchWord, relatedWords);
+        SearchWordDocument searchWordDocument = updateSuggestions(searchWord, relatedWords);
+        return searchWordDocument.getSuggestions();
+    }
 
-        // 3. 제안 검색어 리스트 반환
-        return searchLogRepository.findById(searchWord)
-                .map(SearchWordDocument::getSuggestions)
-                .orElseGet(() -> relatedWords.stream().distinct().collect(Collectors.toList()));
+    private SearchWordDocument updateSuggestions(String searchWord, List<String> newSuggestions) {
+        SearchWordDocument document = searchLogRepository.findById(searchWord).get();
+        document.registSuggestions(newSuggestions);
+        searchLogRepository.save(document);
+        return document;
     }
 }

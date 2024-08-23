@@ -41,6 +41,6 @@ public class SearchWordDocument {
     }
 
     public void registSuggestions(List<String> suggestions) {
-        this.suggestions.addAll(suggestions);
+        this.suggestions = new ArrayList<>(suggestions);
     }
 }

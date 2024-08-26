@@ -12,13 +12,6 @@
 * 원하는 데이터를 어떻게 빠르게 조회할까?
 * 캐싱과 인덱싱을 어떻게 구성하여 활용하는게 효율적일까?
 
-### 프로젝트 수행 기록 및 이슈
-
-* [부하를 줄이기 위하여 어떤 조건의 데이터를 Redis로 캐싱하는게 좋을까?](https://fluorescent-sceptre-6b9.notion.site/e5e730e11a4e4c40a1f1b2569c950ac4)
-* [서버 다중화 환경에서의 세션 불일치 문제](https://fluorescent-sceptre-6b9.notion.site/b0ca0b7162b748ebb5116f3193a28a27)
-* [Elasticsearch를 활용하여 게시물 조회 성능을 향상시켜보자](https://fluorescent-sceptre-6b9.notion.site/b0ca0b7162b748ebb5116f3193a28a27)
-* [ngrinder를 이용한 캐싱 성능 테스트](https://fluorescent-sceptre-6b9.notion.site/ngrinder-e34314fbaf554a1b9b4cdaa2fd7af46d)
-
 * 그 밖에 수행 기록 : [notion link Click!](https://fluorescent-sceptre-6b9.notion.site/b0cf9a22d63541ea930d7b20b51d2b57)
 
 ### 프로젝트 전체 구성도

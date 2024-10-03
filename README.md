@@ -1,4 +1,4 @@
-<p align="center">게시글을 포스팅하고 유저들과 소통할 수 있는 웹블로그 토이 프로젝트입니다.</p>
+<p align="center">빠른 데이터 조회 성능을 테스트하기 위한 프로젝트입니다.</p>
 
 ### 사용한 기술 스택
 Java, Spring Boot, IntelliJ, Gradle, JPA, Querydsl, Redis, Nginx, Jenkins, Docker, MYSQL, ElasticSearch

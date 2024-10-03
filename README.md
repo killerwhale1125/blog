@@ -1,11 +1,9 @@
 <p align="center">게시글을 포스팅하고 유저들과 소통할 수 있는 웹블로그 토이 프로젝트입니다.</p>
 
-### 프로젝트의 어떤 부분에 중점을 두었는지?
+### 프로젝트의 핵심 내용
 
-* 원하는 데이터를 어떻게 빠르게 조회할까?
-* 캐싱과 인덱싱을 어떻게 구성하여 활용하는게 효율적일까?
-
-* 수행 기록 : [notion link Click!](https://fluorescent-sceptre-6b9.notion.site/b0cf9a22d63541ea930d7b20b51d2b57)
+* ElasticSearch로 데이터 인덱싱
+* 캐싱과 인덱싱을 사용하여 조회 성능 극대화
 
 ### 프로젝트 전체 구성도
 ![image](https://github.com/user-attachments/assets/bc247944-39e9-448f-b92b-592a82ffb702)
